@@ -96,7 +96,20 @@ NDA_dir/
    - Ensure your BIDS-formatted NIfTI files are accessible on Hyak
    - Verify you have `image03_definitions.csv` in your definitions directory
 
-2. **Run `extract_image_info.ipynb`**:
+2. **Rename/drop image files before extracting metadata**:
+   - Run `re-name.sh` on Hyak before creating `NDA_image03_extracted.csv`
+   - This applies the image correction rules from `check_questionare_names.ipynb` directly to the on-disk BIDS folders and filenames
+   - Preview the changes first:
+     ```bash
+     DRY_RUN=1 ./re-name.sh
+     ```
+   - If the preview looks correct, run the script:
+     ```bash
+     ./re-name.sh
+     ```
+   - After this step, the extracted metadata should already contain the corrected `ID`, `visit`, and `image_file` values
+
+3. **Run `extract_image_info.ipynb`**:
    - Open the notebook on Hyak
    - Update configuration in the first cell:
      - Set `project_root` to your BIDS data directory
@@ -105,7 +118,7 @@ NDA_dir/
    - Run all cells sequentially
    - The notebook will generate `NDA_image03_extracted.csv`
 
-3. **Transfer image metadata to local machine**:
+4. **Transfer image metadata to local machine**:
    ```bash
    rsync -a -e "ssh -o IPQoS=throughput" [username]@klone.hyak.uw.edu:[remote_path]/NDA_image03_extracted.csv [local_path]/sumission_YYYYMMDD/
    ```
@@ -116,9 +129,10 @@ NDA_dir/
    - `[local_path]` with your local NDA directory path
    - `YYYYMMDD` with your submission date
 
-4. **Verify the file**:
+5. **Verify the file**:
    - Check that `NDA_image03_extracted.csv` is in your submission directory
    - The file will be used in Step 4
+   - Confirm that old image names/visits such as `baseline1`, `T121`, `25011615385104`, `25033110523111`, `26041410095139`, `26042410014153`, and `25112414482328` are no longer present
 
 ### Step 4: Process Questionnaire Data
 
