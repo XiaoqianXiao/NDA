@@ -193,6 +193,97 @@ NDA_dir/
    - Verify file naming matches NDA requirements
    - **Final check**: Ensure no missing values in `subjectkey`, `src_subject_id`, `interview_date`, or `interview_age` across all files
 
+### Step 6: Validate and Submit with NDA Tools
+
+Use NDA Tools to validate the final NDA CSV files and submit them to NDA. The official tool is `nda-tools`: https://github.com/NDAR/nda-tools.
+
+1. **Install NDA Tools**:
+   ```bash
+   pip install nda-tools
+   ```
+
+   If you use a specific Python environment, install it with that Python:
+   ```bash
+   python -m pip install nda-tools
+   ```
+
+2. **Check that the commands are available**:
+   ```bash
+   vtcmd -h
+   downloadcmd -h
+   ```
+
+   If `vtcmd` is not found, run it through Python instead:
+   ```bash
+   python -m NDATools.clientscripts.vtcmd -h
+   python -m NDATools.clientscripts.downloadcmd -h
+   ```
+
+3. **Validate a final CSV without submitting**:
+   ```bash
+   vtcmd path_to_image_csv
+   ```
+
+   Example:
+   ```bash
+   vtcmd /Users/xiaoqianxiao/lab/R01/NDA/sumission_20260715/final/image03.csv
+   ```
+
+   If validation succeeds, NDA Tools should report that structural checks and preliminary QA checks passed.
+
+4. **Submit `image03.csv` with image attachments**:
+   ```bash
+   vtcmd path_to_image_csv -l path_to_image_folder -b
+   ```
+
+   The `-l` argument points to the base folder containing the image files referenced by `image03.csv`. Use the folder up to, but not including, the relative path listed in the CSV.
+
+   Example:
+   ```bash
+   vtcmd /Users/xiaoqianxiao/lab/R01/NDA/sumission_20260715/final/image03.csv \
+     -l /path/to/image/files \
+     -b
+   ```
+
+   If the image paths in `image03.csv` are relative to the final submission folder, use:
+   ```bash
+   vtcmd /Users/xiaoqianxiao/lab/R01/NDA/sumission_20260715/final/image03.csv \
+     -l /Users/xiaoqianxiao/lab/R01/NDA/sumission_20260715/final \
+     -b
+   ```
+
+5. **Submit non-image CSV files**:
+   ```bash
+   vtcmd path_to_final_csv -b
+   ```
+
+   You usually only need `-l` for files that reference associated files, such as imaging files.
+
+6. **Use the Python module form if needed**:
+   ```bash
+   python -m NDATools.clientscripts.vtcmd path_to_image_csv -l path_to_image_folder -b
+   ```
+
+   This is useful when multiple Python environments are installed or when the `vtcmd` shell command is not on your `PATH`.
+
+7. **Update saved NDA credentials if needed**:
+   ```bash
+   python -c "import keyring; keyring.set_password('nda-tools', 'your_username_here', 'your_password_here')"
+   ```
+
+   This is only needed if NDA Tools does not prompt for credentials, or if the saved NDA password is outdated. Use your NDA username and password, not eRA Commons or Login.gov credentials.
+
+8. **If S3 upload fails with `UnseekableStreamError`**:
+   ```bash
+   export AWS_REQUEST_CHECKSUM_CALCULATION=when_required
+   vtcmd path_to_image_csv -l path_to_image_folder -b
+   ```
+
+   This works around a known boto3/botocore S3 streaming checksum issue. Also consider upgrading the AWS packages in the same Python environment:
+   ```bash
+   python -m pip install --upgrade boto3 botocore s3transfer
+   ```
+
 ---
 
 ## Scripts Reference
